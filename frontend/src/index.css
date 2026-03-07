@@ -1,0 +1,159 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f8ff; /* light blue */
+  color: #333;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #007bff; /* blue */
+  text-align: center;
+}
+
+.room-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.room-card:hover {
+  transform: translateY(-2px);
+}
+
+.room-card h3 {
+  color: #007bff;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+input, select, button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+/* bed status colors for form */
+select option[disabled] {
+  color: #999;
+}
+
+/* bed status display */
+.bed-status-list {
+  margin: 20px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.bed-status-list h3 {
+  color: #007bff;
+  margin-top: 0;
+}
+
+.beds-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bed-card {
+  padding: 15px;
+  border: 2px solid;
+  border-radius: 6px;
+  text-align: center;
+  background: #f9f9f9;
+}
+
+.bed-number {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.bed-status {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* optionally: legend */
+.status-available { color: green; }
+.status-occupied { color: red; }
+.status-maintenance { color: orange; }
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #007bff;
+}
+
+.modal-content form input {
+  margin: 10px 0;
+}
+
+.modal-content button {
+  margin: 5px;
+  width: auto;
+  display: inline-block;
+}
