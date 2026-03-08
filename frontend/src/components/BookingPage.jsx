@@ -1,7 +1,7 @@
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useState } from 'react'
 
-const BookingPage = ({ rooms }) => {
+const BookingPage = ({ rooms, bookings }) => {
   const { roomId } = useParams()
   const numRoomId = parseInt(roomId, 10)
   const room = rooms.find(r => r.id === numRoomId) || {
@@ -18,29 +18,67 @@ const BookingPage = ({ rooms }) => {
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [studentId, setStudentId] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
 
+  // Calculate min and max dates for booking (today to 7 days ahead)
+  const today = new Date()
+  const minDate = today.toISOString().split('T')[0]
+  const maxDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
+  // compute week dates Monday–Sunday
+  const getWeekDates = () => {
+    const day = today.getDay() // 0=Sun,1=Mon
+    const diffToMon = (day + 6) % 7 // days since last Monday
+    const monday = new Date(today)
+    monday.setDate(today.getDate() - diffToMon)
+    const dates = []
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday)
+      d.setDate(monday.getDate() + i)
+      dates.push(d)
+    }
+    return dates
+  }
+  const weekDates = getWeekDates()
+
+  const isBookedOn = (bedId, date) => {
+    return bookings.some(b =>
+      String(b.room) === String(roomId) &&
+      String(b.bedId) === String(bedId) &&
+      new Date(b.checkIn) <= date &&
+      new Date(b.checkOut) >= date
+    )
+  }
+
+  const getAvailabilityForBed = bedId =>
+    weekDates.map(d => (isBookedOn(bedId, d) ? 'ไม่ว่าง' : 'ว่าง'))
+
+  const getAvailableDatesForBed = bedId =>
+    weekDates.filter(d => !isBookedOn(bedId, d))
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!selectedBed) return alert('Select a bed')
-    setShowModal(true)
+    // removed, now on bed click
   }
 
   const handleBookingSubmit = (e) => {
     e.preventDefault()
-    if (!studentId || !name || !email) return alert('กรุณากรอกข้อมูลให้ครบ')
+    if (!selectedBed || !checkIn || !studentId || !name || !email) return alert('กรุณากรอกข้อมูลให้ครบ')
     if (!/^\d{10}$/.test(studentId)) return alert('รหัสนักศึกษาต้องเป็นเลข 10 ตัวเท่านั้น')
     fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ room: roomId, bedId: selectedBed, checkIn, checkOut, studentId, name, email })
+      body: JSON.stringify({ room: roomId, bedId: selectedBed, checkIn, checkOut: checkIn, studentId, name, email })
     })
       .then(res => res.json())
       .then(data => {
-        alert('Booking successful')
+        setShowConfirm(true)
         setShowModal(false)
+        setSelectedBed('')
+        setCheckIn('')
         setStudentId('')
         setName('')
         setEmail('')
@@ -63,59 +101,61 @@ const BookingPage = ({ rooms }) => {
 
   return (
     <div>
-      <h2>Book {room.name}</h2>
+      <Link to="/" className="back-button">← กลับสู่หน้าหลัก</Link>
+      <h2> {room.name} - Tower</h2>
       
       <div className="bed-status-list">
-        <h3>สถานะเตียง</h3>
+        <h3>เลือก tower</h3>
         <div className="beds-grid">
-          {room.beds.map(b => (
-            <div 
-              key={b.id} 
-              className="bed-card"
-              style={{ borderColor: getStatusColor(b.status) }}
-            >
-              <div className="bed-number">เตียง {b.id}</div>
+          {room.beds.map(b => {
+            const availability = getAvailabilityForBed(b.id)
+            return (
               <div 
-                className="bed-status"
-                style={{ color: getStatusColor(b.status) }}
+                key={b.id} 
+                className="bed-card"
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  setSelectedBed(b.id)
+                  setShowModal(true)
+                }}
               >
-                {getStatusLabel(b.status)}
+                <div className="bed-number">Tower {b.id}</div>
+                <div className="bed-calendar">
+                  {['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'].map((label, i) => (
+                    <div key={i} className={`day ${availability[i] === 'ว่าง' ? 'status-available' : 'status-occupied'}`}>
+                      {label}: {availability[i]}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
-
-      <form onSubmit={handleSubmit}>
-        <label>เลือกเตียง:</label>
-        <select 
-          value={selectedBed} 
-          onChange={e => setSelectedBed(e.target.value)}
-        >
-          <option value="">-- เลือกเตียง --</option>
-          {room.beds
-            .filter(b => b.status === 'available')
-            .map(b => (
-              <option key={b.id} value={b.id}>
-                เตียง {b.id} - ว่าง
-              </option>
-            ))}
-        </select>
-        <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)} placeholder="Check-in" required />
-        <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)} placeholder="Check-out" required />
-        <button type="submit">จองเตียง</button>
-      </form>
 
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>กรุณากรอกข้อมูลส่วนตัว</h3>
+            <h3>จองหอทดลอง {selectedBed}</h3>
             <form onSubmit={handleBookingSubmit}>
+              <label>เลือกวันที่ต้องการจอง:</label>
+              <select 
+                value={checkIn} 
+                onChange={e => setCheckIn(e.target.value)}
+                required
+              >
+                <option value="">-- กรุณาเลือกวันที่ --</option>
+                {selectedBed && getAvailableDatesForBed(selectedBed).map(d => (
+                  <option key={d.toISOString()} value={d.toISOString().split('T')[0]}>
+                    {d.toLocaleDateString('th-TH', { weekday: 'long' })}
+                  </option>
+                ))}
+              </select>
               <input 
                 type="text" 
                 value={studentId} 
                 onChange={e => setStudentId(e.target.value)} 
-                placeholder="รหัสนักศึกษา (10 ตัว)" 
+                placeholder="รหัสนักศึกษา (10 หลัก)" 
                 maxLength="10" 
                 pattern="\d{10}" 
                 required 
@@ -137,6 +177,22 @@ const BookingPage = ({ rooms }) => {
               <button type="submit">ยืนยันการจอง</button>
               <button type="button" onClick={() => setShowModal(false)}>ยกเลิก</button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showConfirm && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>✅ การจองสำเร็จแล้ว</h3>
+            <p>การจองของคุณได้รับการยืนยันเรียบร้อยแล้ว!</p>
+            <button onClick={() => {
+              setShowConfirm(false)
+              setStudentId('')
+              setName('')
+              setEmail('')
+              setCheckIn('')
+            }}>ตกลง</button>
           </div>
         </div>
       )}

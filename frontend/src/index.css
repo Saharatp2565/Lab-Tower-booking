@@ -1,73 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch&display=swap');
+
 body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f0f8ff; /* light blue */
+  font-family: 'Chakra Petch', sans-serif;
+  background: none;
+  position: relative;
   color: #333;
   margin: 0;
   padding: 20px;
+  min-height: 100vh;
 }
 
 .container {
   max-width: 800px;
   margin: 0 auto;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 h1 {
   color: #007bff; /* blue */
   text-align: center;
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .room-card {
   background: white;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 10px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .room-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.room-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
 }
 
 .room-card h3 {
   color: #007bff;
+  margin-top: 0;
 }
 
-a {
+.back-button {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #667eea;
   text-decoration: none;
-  color: inherit;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.back-button:hover {
+  color: #764ba2;
 }
 
 form {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   max-width: 400px;
   margin: 20px auto;
+  border: 1px solid #e0e0e0;
 }
 
 input, select, button {
   display: block;
   width: 100%;
-  margin: 10px 0;
-  padding: 10px;
+  margin: 12px 0;
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.3);
+  outline: none;
 }
 
 button {
-  background: #007bff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 button:hover {
-  background: #0056b3;
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 /* bed status colors for form */
@@ -78,15 +125,17 @@ select option[disabled] {
 /* bed status display */
 .bed-status-list {
   margin: 20px 0;
-  padding: 20px;
+  padding: 25px;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
 }
 
 .bed-status-list h3 {
   color: #007bff;
   margin-top: 0;
+  font-size: 1.5em;
 }
 
 .beds-grid {
@@ -97,11 +146,17 @@ select option[disabled] {
 }
 
 .bed-card {
-  padding: 15px;
+  padding: 18px;
   border: 2px solid;
-  border-radius: 6px;
+  border-radius: 10px;
   text-align: center;
   background: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.bed-card:hover {
+  background: #f0f0f0;
+  transform: scale(1.02);
 }
 
 .bed-number {
@@ -127,25 +182,39 @@ select option[disabled] {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(5px);
 }
 
 .modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  max-width: 400px;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  max-width: 450px;
   width: 90%;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modal-content h3 {
   margin-top: 0;
   color: #007bff;
+  font-size: 1.5em;
 }
 
 .modal-content form input {
@@ -156,4 +225,68 @@ select option[disabled] {
   margin: 5px;
   width: auto;
   display: inline-block;
+}
+
+.room-beds-status {
+  margin-top: 10px;
+}
+
+.room-beds-status h4 {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #007bff;
+}
+
+.bed-summary {
+  font-size: 12px;
+  margin: 5px 0;
+}
+
+.bed-summary .day {
+  margin-right: 8px;
+}
+
+.bed-calendar .day {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #007bff;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.back-button:hover {
+  background: #0056b3;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("https://api.computing.kku.ac.th/storage/images/1661930576-5.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(2px);
+  z-index: -1;
+
+  animation: bgMove 25s ease-in-out infinite;
+}
+@keyframes bgMove {
+  0% {
+    transform: scale(1.1) rotate(-1deg) translateX(-20px);
+  }
+  50% {
+    transform: scale(1.15) rotate(1deg) translateX(20px);
+  }
+  100% {
+    transform: scale(1.1) rotate(-1deg) translateX(-20px);
+  }
 }

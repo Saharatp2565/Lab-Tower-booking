@@ -15,18 +15,18 @@ const Register = ({ setUser }) => {
     })
       .then(res => res.json())
       .then(data => {
-        if (data.message) alert('Registered successfully, please login')
-        else alert('Registration failed')
+        if (data.message) alert('สมัครสมาชิกสำเร็จแล้ว กรุณาเข้าสู่ระบบ')
+        else alert('การสมัครสมาชิกล้มเหลว')
       })
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="text" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="รหัสนักศึกษา (10 ตัว)" maxLength="10" pattern="[0-9]{10}" required />
+      <input type="text" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="รหัสนักศึกษา (10 หลัก)" maxLength="10" pattern="[0-9]{10}" required />
       <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="ชื่อ-นามสกุล" required />
       <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="อีเมล" required />
       <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="รหัสผ่าน" required />
-      <button type="submit">Register</button>
+      <button type="submit">สมัครสมาชิก</button>
     </form>
   )
 }

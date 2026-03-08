@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import RoomSelection from './components/RoomSelection'
 import BookingPage from './components/BookingPage'
@@ -7,9 +7,8 @@ function App() {
   const [rooms] = useState([
     {
       id: 1,
-      name: 'Deluxe Room',
+      name: 'CP9527',
       description: 'Spacious room with city view',
-      price: 100,
       beds: [
         { id: 1, status: 'available' },
         { id: 2, status: 'available' },
@@ -21,9 +20,8 @@ function App() {
     },
     {
       id: 2,
-      name: 'Standard Room',
+      name: 'CP9603',
       description: 'Comfortable room',
-      price: 80,
       beds: [
         { id: 1, status: 'available' },
         { id: 2, status: 'occupied' },
@@ -32,14 +30,22 @@ function App() {
       ]
     }
   ])
+  const [bookings, setBookings] = useState([])
+
+  useEffect(() => {
+    fetch('/api/bookings')
+      .then(res => res.json())
+      .then(data => setBookings(data))
+      .catch(() => {})
+  }, [])
 
   return (
     <Router>
       <div className="container">
-        <h1>Room Booking System</h1>
+        <h1>Booking Lab Tower</h1>
         <Routes>
-          <Route path="/" element={<RoomSelection rooms={rooms} />} />
-          <Route path="/book/:roomId" element={<BookingPage rooms={rooms} />} />
+          <Route path="/" element={<RoomSelection rooms={rooms} bookings={bookings} />} />
+          <Route path="/book/:roomId" element={<BookingPage rooms={rooms} bookings={bookings} />} />
         </Routes>
       </div>
     </Router>
