@@ -70,7 +70,7 @@ function App() {
   return (
     <Router>
       <div className="container">
-        <h1>Booking Lab Tower</h1>
+        <h1>Booking Lab Rack</h1>
         <Routes>
           <Route path="/" element={<RoomSelection rooms={rooms} bookings={bookings} />} />
           <Route path="/book/:roomId" element={<BookingPage rooms={rooms} bookings={bookings} onBook={handleBook} />} />

@@ -127,10 +127,10 @@ const BookingPage = ({ rooms, bookings, onBook }) => {
   return (
     <div>
       <Link to="/" className="back-button">← กลับสู่หน้าหลัก</Link>
-      <h2> {room.name} - Tower</h2>
+      <h2> {room.name} - Rack</h2>
       
       <div className="bed-status-list">
-        <h3>เลือก tower</h3>
+        <h3>เลือก Rack</h3>
         <div className="beds-grid">
           {room.beds.map(b => {
             const availability = getAvailabilityForBed(b.id)
@@ -144,7 +144,7 @@ const BookingPage = ({ rooms, bookings, onBook }) => {
                   setShowModal(true)
                 }}
               >
-                <div className="bed-number">Tower {b.id}</div>
+                <div className="bed-number">Rack {b.id}</div>
                 <div className="bed-calendar">
                   {['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'].map((label, i) => (
                     <div key={i} className={`day ${availability[i] === 'ว่าง' ? 'status-available' : 'status-occupied'}`}>
@@ -161,7 +161,7 @@ const BookingPage = ({ rooms, bookings, onBook }) => {
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>จองหอทดลอง {selectedBed}</h3>
+            <h3>จองRack {selectedBed}</h3>
             <form onSubmit={handleBookingSubmit}>
               <label>เลือกวันที่ต้องการจอง:</label>
               <select 

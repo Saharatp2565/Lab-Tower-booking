@@ -38,7 +38,7 @@ const RoomSelection = ({ rooms, bookings }) => {
 
   return (
     <div>
-      <h2>Select Tower</h2>
+      <h2>Select Rack</h2>
       {rooms.map(room => (
         <Link key={room.id} to={`/book/${room.id}`}>
           <div className="room-card">
@@ -49,7 +49,7 @@ const RoomSelection = ({ rooms, bookings }) => {
                 const availability = getAvailabilityForBed(room.id, bed.id)
                 return (
                   <div key={bed.id} className="bed-summary">
-                    <span>Tower {bed.id}: </span>
+                    <span>Rack {bed.id}: </span>
                     {['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'].map((label, i) => (
                       <span key={i} className={`day ${availability[i] === 'ว่าง' ? 'status-available' : 'status-occupied'}`}>
                         {label}: {availability[i]}
