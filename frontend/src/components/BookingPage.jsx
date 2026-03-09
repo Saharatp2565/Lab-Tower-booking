@@ -1,7 +1,14 @@
 import { useParams, Link } from 'react-router-dom'
 import { useState } from 'react'
+import { collection, addDoc, doc, updateDoc } from 'firebase/firestore'
+import { db } from '../firebase'
 
-const BookingPage = ({ rooms, bookings }) => {
+const toDateStr = (d) => {
+  const dt = new Date(d)
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`
+}
+
+const BookingPage = ({ rooms, bookings, onBook }) => {
   const { roomId } = useParams()
   const numRoomId = parseInt(roomId, 10)
   const room = rooms.find(r => r.id === numRoomId) || {
@@ -23,10 +30,7 @@ const BookingPage = ({ rooms, bookings }) => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
 
-  // Calculate min and max dates for booking (today to 7 days ahead)
   const today = new Date()
-  const minDate = today.toISOString().split('T')[0]
-  const maxDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
   // compute week dates Monday–Sunday
   const getWeekDates = () => {
@@ -45,11 +49,12 @@ const BookingPage = ({ rooms, bookings }) => {
   const weekDates = getWeekDates()
 
   const isBookedOn = (bedId, date) => {
+    const dateStr = toDateStr(date)
     return bookings.some(b =>
       String(b.room) === String(roomId) &&
       String(b.bedId) === String(bedId) &&
-      new Date(b.checkIn) <= date &&
-      new Date(b.checkOut) >= date
+      b.checkIn <= dateStr &&
+      (b.checkOut || b.checkIn) >= dateStr
     )
   }
 
@@ -64,25 +69,45 @@ const BookingPage = ({ rooms, bookings }) => {
     // removed, now on bed click
   }
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault()
     if (!selectedBed || !checkIn || !studentId || !name || !email) return alert('กรุณากรอกข้อมูลให้ครบ')
     if (!/^\d{10}$/.test(studentId)) return alert('รหัสนักศึกษาต้องเป็นเลข 10 ตัวเท่านั้น')
-    fetch('/api/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ room: roomId, bedId: selectedBed, checkIn, checkOut: checkIn, studentId, name, email })
-    })
-      .then(res => res.json())
-      .then(data => {
-        setShowConfirm(true)
-        setShowModal(false)
-        setSelectedBed('')
-        setCheckIn('')
-        setStudentId('')
-        setName('')
-        setEmail('')
-      })
+    const bookingData = {
+      room: parseInt(roomId),
+      bedId: selectedBed,
+      checkIn,
+      checkOut: checkIn,
+      studentId,
+      name,
+      email,
+      createdAt: new Date().toISOString()
+    }
+
+    try {
+      // Save booking to Firestore
+      await addDoc(collection(db, 'bookings'), bookingData)
+
+      // Update bed status in Firestore room document
+      if (room.docId) {
+        const updatedBeds = room.beds.map(b =>
+          b.id === selectedBed ? { ...b, status: 'occupied' } : b
+        )
+        await updateDoc(doc(db, 'rooms', room.docId), { beds: updatedBeds })
+      }
+
+      // Update local state
+      if (onBook) onBook(bookingData)
+      setShowConfirm(true)
+      setShowModal(false)
+      setSelectedBed('')
+      setCheckIn('')
+      setStudentId('')
+      setName('')
+      setEmail('')
+    } catch (err) {
+      alert('เกิดข้อผิดพลาด: ' + err.message)
+    }
   }
 
   const getStatusColor = (status) => {
@@ -146,8 +171,8 @@ const BookingPage = ({ rooms, bookings }) => {
               >
                 <option value="">-- กรุณาเลือกวันที่ --</option>
                 {selectedBed && getAvailableDatesForBed(selectedBed).map(d => (
-                  <option key={d.toISOString()} value={d.toISOString().split('T')[0]}>
-                    {d.toLocaleDateString('th-TH', { weekday: 'long' })}
+                  <option key={toDateStr(d)} value={toDateStr(d)}>
+                    {d.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' })}
                   </option>
                 ))}
               </select>

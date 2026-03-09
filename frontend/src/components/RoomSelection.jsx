@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom'
 
+const toDateStr = (d) => {
+  const dt = new Date(d)
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`
+}
+
 const RoomSelection = ({ rooms, bookings }) => {
   // compute week dates Monday–Sunday
   const getWeekDates = () => {
@@ -19,11 +24,12 @@ const RoomSelection = ({ rooms, bookings }) => {
   const weekDates = getWeekDates()
 
   const isBookedOn = (roomId, bedId, date) => {
+    const dateStr = toDateStr(date)
     return bookings.some(b =>
       String(b.room) === String(roomId) &&
       String(b.bedId) === String(bedId) &&
-      new Date(b.checkIn) <= date &&
-      new Date(b.checkOut) >= date
+      b.checkIn <= dateStr &&
+      (b.checkOut || b.checkIn) >= dateStr
     )
   }
 
